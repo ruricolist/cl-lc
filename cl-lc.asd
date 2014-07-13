@@ -5,6 +5,6 @@
   :description "List comprehensions"
   :author "Paul M. Rodriguez <pmr@ruricolist.com>"
   :license "MIT"
-  :depends-on (#:alexandria #:serapeum #:optima)
+  :depends-on (#:alexandria #:serapeum #:optima #:iterate)
   :components ((:file "package")
                (:file "cl-lc")))

@@ -36,23 +36,25 @@ Acceptable generators are:
 
 2. Vectors, with `:across`.
 
-3. The arithmetic subclauses of `loop`, e.g.
+3. Sequences of any kind, with `:over`.
+
+4. The arithmetic subclauses of `loop`, e.g.
 
      `(i :from 0 :to 10 :by 2)`
 
-4. `:on' to bind the successive tails of a list.
+5. `:on' to bind the successive tails of a list.
 
-5. Direct bindings with `:=` and, optionally, `:then`.
+6. Direct bindings with `:=` and, optionally, `:then`.
 
      `(x := y :then z)`
 
-6. Multiple values, again with `:='.
+7. Multiple values, again with `:='.
 
      `(x y z := (values 1 2 3))`
 
-7. `:over', to bind the items of a hash table.
+8. `:in-hashtable, to bind the items of a hash table.
 
-    `((key value) :over table)`
+    `((key value) :in-hashtable table)`
 
 # Other macros
 
@@ -70,6 +72,9 @@ Acceptable generators are:
 
     sum-of
     ≡ (reduce #'+ (list-of ...))
+
+    product-of
+    ≡ (reduce #'* (list-of ...))
 
     max-of
     ≡ (reduce #'max (list-of ...))
