@@ -4,10 +4,8 @@
 
 ;;; "cl-lc" goes here. Hacks and glory await!
 
-(eval-and-compile
-  (def iterate (find-package :iterate))
-
-  (def for (find-symbol "FOR" iterate)))
+(eval-when (:compile-toplevel :load-toplevel)
+  (define-symbol-macro for (find-symbol "FOR" :iterate)))
 
 (defun parse-generator (exp)
   (match exp
@@ -17,7 +15,7 @@
      `((,for ,var over ,seq)))
     ((list* var (and gen (type keyword)) rest)
      (flet ((keyword->iterate (keyword)
-              (or (find-symbol (string keyword) iterate)
+              (or (find-symbol (string keyword) :iterate)
                   (error "No such driver: ~a" gen))))
        `((,for ,var
            ,(keyword->iterate gen)
