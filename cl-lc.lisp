@@ -64,7 +64,7 @@
 
 (defmacro defcomp (name &rest (accumulator &optional documentation))
   `(defmacro ,name (exp &body exps)
-     ,@(unsplice documentation)
+     ,@(and documentation (list documentation))
      `(lc ,(cons exp exps) ,',accumulator)))
 
 (defmacro seq-dispatch (seq &body (list vector sequence))
