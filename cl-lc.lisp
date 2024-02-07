@@ -9,30 +9,12 @@
 
 (defun parse-generator (exp)
   (match exp
-    ((list (list key value) :in-hashtable hash)
-     `((,for (,key ,value) in-hashtable ,hash)))
-    ((list var (and _ (eql :over)) seq)
-     `((,for ,var over ,seq)))
-    ((list* var (and gen (type keyword)) rest)
-     (flet ((keyword->iterate (keyword)
-              (or (find-symbol (string keyword) :iterate)
-                  (error "No such driver: ~a" gen))))
-       `((,for ,var
-           ,(keyword->iterate gen)
-           ,@(loop for expr in rest
-                   if (keywordp expr)
-                     collect (keyword->iterate expr)
-                   else collect expr)))))
-    ((list* (and gen (list _ (type keyword) _))
-            gens)
-     (mappend #'parse-generator (cons gen gens)))
-    ((and list (type list))
-     (let ((tail (member := list)))
-       (if (not tail)
-           (fail)
-           (let ((vars (ldiff list tail))
-                 (form (cdr tail)))
-             `((,for (values ,@vars) = ,@form))))))
+    ((list* (eql '#.for) generator)
+     `((,for ,@generator)))
+    ((list* (eql '#.for) generators)
+     (mapcar (lambda (generator)
+               (cons 'for generator))
+             generators))
     (otherwise exp)))
 
 (defun generator? (exp)
@@ -44,11 +26,12 @@
       (values (car qs) (cdr qs))))
 
 (defmacro lc (qs &optional (accumulator 'collect))
-  (with-gensyms (outer)
-    (multiple-value-bind (head qualifiers)
-        (ensure-head qs)
-      `(iterate ,outer (repeat 1)
-         ,(lcrec head qualifiers accumulator outer)))))
+  (let ((qs (handle-inline-conditions qs)))
+    (with-gensyms (outer)
+      (multiple-value-bind (head qualifiers)
+          (ensure-head qs)
+        `(iterate ,outer (repeat 1)
+                  ,(lcrec head qualifiers accumulator outer))))))
 
 (defun lcrec (head qualifiers accumulator outer)
   (if (null qualifiers)
@@ -61,6 +44,19 @@
             `(iterate ,@(parse-generator q)
                ,(lcrec head qs accumulator outer))
             `(if ,q ,(lcrec head qs accumulator outer))))))
+
+(defun handle-inline-conditions (qs &optional acc)
+  (match qs
+    ((list* '#.for gen qs)
+     (handle-inline-conditions qs (cons gen acc)))
+    ((list* (or 'when 'if) test qs)
+     (handle-inline-conditions qs (cons test acc)))
+    ((list* 'unless test qs)
+     (handle-inline-conditions qs (cons `(not ,test) acc)))
+    ((list* q qs)
+     (handle-inline-conditions qs (cons q acc)))
+    ((list)
+     (nreverse acc))))
 
 (defmacro defcomp (name &rest (accumulator &optional documentation))
   `(defmacro ,name (exp &body exps)
@@ -192,7 +188,7 @@ track and return the minimum.")
   "Like a list comprehension, but reduce the results using FN."
   `(lc ,(cons (gensym) exprs) (reducing ,expr by ,fn)))
 
-(defmacro for ((&rest qs) &body head)
+(defmacro do-for ((&rest qs) &body head)
   "Imperative macro for list comprehension–like iteration.
 
 QS are like the filters and generators of a list comprehension; BODY
