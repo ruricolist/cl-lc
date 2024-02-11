@@ -4,21 +4,16 @@
 
 ;;; "cl-lc" goes here. Hacks and glory await!
 
-(eval-when (:compile-toplevel :load-toplevel)
-  (define-symbol-macro for (find-symbol "FOR" :iterate)))
-
 (defun parse-generator (exp)
   (match exp
-    ((list* (eql '#.for) generator)
-     `((,for ,@generator)))
-    ((list* (eql '#.for) generators)
-     (mapcar (lambda (generator)
-               (cons 'for generator))
-             generators))
-    (otherwise exp)))
+    ((list* (eql 'for) _)
+     (list exp))
+    ((list* (list* (eql 'for) _) _)
+     exp)
+    (otherwise nil)))
 
 (defun generator? (exp)
-  (not (eq exp (parse-generator exp))))
+  (parse-generator exp))
 
 (defun ensure-head (qs)
   (if (generator? (car qs))
@@ -31,7 +26,7 @@
       (multiple-value-bind (head qualifiers)
           (ensure-head qs)
         `(iterate ,outer (repeat 1)
-                  ,(lcrec head qualifiers accumulator outer))))))
+           ,(lcrec head qualifiers accumulator outer))))))
 
 (defun lcrec (head qualifiers accumulator outer)
   (if (null qualifiers)
@@ -47,7 +42,7 @@
 
 (defun handle-inline-conditions (qs &optional acc)
   (match qs
-    ((list* '#.for gen qs)
+    ((list* 'for gen qs)
      (handle-inline-conditions qs (cons gen acc)))
     ((list* (or 'when 'if) test qs)
      (handle-inline-conditions qs (cons test acc)))
@@ -75,7 +70,7 @@
        ,list
        ,vector))
 
-(defmacro-driver (#.for var over seq)
+(defmacro-driver (for var over seq)
   (with-gensyms (gseq idx)
     (let ((for (if generate 'generate for)))
       `(progn
@@ -83,22 +78,22 @@
          (with ,idx = 0)
          (declare (type alexandria:array-length ,idx))
          (,for ,var next
-           (seq-dispatch ,gseq
-             (if ,gseq
-                 (pop ,gseq)
-                 (terminate))
-             (progn
-               (unless (< ,idx (length ,gseq))
-                 (terminate))
-               (aref ,gseq
-                     (prog1 ,idx
-                       (incf ,idx))))
-             (progn
-               (unless (< ,idx (length ,gseq))
-                 (terminate))
-               (elt ,gseq
-                    (prog1 ,idx
-                      (incf ,idx))))))))))
+               (seq-dispatch ,gseq
+                 (if ,gseq
+                     (pop ,gseq)
+                     (terminate))
+                 (progn
+                   (unless (< ,idx (length ,gseq))
+                     (terminate))
+                   (aref ,gseq
+                         (prog1 ,idx
+                           (incf ,idx))))
+                 (progn
+                   (unless (< ,idx (length ,gseq))
+                     (terminate))
+                   (elt ,gseq
+                        (prog1 ,idx
+                          (incf ,idx))))))))))
 
 (defcomp list-of collect
   "A list comprehension.
