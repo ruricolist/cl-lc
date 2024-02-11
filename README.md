@@ -73,9 +73,9 @@ user-defined ones. We also provide an additional driver, `(for .. over
     min-of
     ≡ (reduce #min (list-of ...))
 
-# For
+# `do-for`
 
-`for` is a cross between a list comprehension and `do`. It does no
+`do-for` is a cross between a list comprehension and `do`. It does no
 accumulating or reducing; it just binds variables.
 
     (let ((pairs '()))
@@ -85,5 +85,16 @@ accumulating or reducing; it just binds variables.
         (push (cons x y) pairs))
       (nreverse pairs))
     => ‘((A . 1) (A . 2) (B . 1) (B . 2) (C . 1) (C . 2))
+
+# `dict-of`
+
+Using `dict-of` construct an `equal` hash table from pairs of (multiple) values.
+
+``` common-lisp
+(hash-table-alist
+ (dict-of (values k v)
+  (for (k . v) in '((a . 1) (b . 2)))))
+=> '((b . 2) (a . 1))
+```
 
 [Iterate]: https://common-lisp.net/project/iterate/doc/index.html
