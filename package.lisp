@@ -10,4 +10,5 @@
            #:any-of #:all-of #:none-of
            #:count-of
            #:over
-           #:do-for))
+           #:do-for
+           #:dict-of))

@@ -59,3 +59,10 @@
            (push (cons x y) pairs))
          (nreverse pairs))
        '((A . 1) (A . 2) (B . 1) (B . 2) (C . 1) (C . 2)))))
+
+(def-test test-dict-of ()
+  (is (set-equal '((a . 1) (b . 2))
+                 (hash-table-alist
+                  (dict-of (values k v)
+                           (for (k . v) in '((a . 1) (b . 2)))))
+                 :test #'equal)))

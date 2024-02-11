@@ -188,4 +188,20 @@ track and return the minimum.")
 
 QS are like the filters and generators of a list comprehension; BODY
 is like its expression. No reducing or accumulating is done."
-  `(lc ,(cons `(block nil (tagbody (return (progn ,@head)))) qs) progn))
+  `(block nil
+     (lc ,(cons `(block nil (tagbody (return (progn ,@head)))) qs) progn)))
+
+(defmacro dict-of (exp &rest exps)
+  "Like a list comprehension, but collect the results into a new 'equal
+hash table instead. Each key and value should be returned as separate
+values."
+  (with-unique-names (dict k v)
+    `(let ((,dict (make-hash-table :test 'equal)))
+       (do-for ,exps
+         ;; Use multiple-value-call instead of multiple-value-bind to
+         ;; ensure two values are returned.
+         (multiple-value-call
+             (lambda (,k ,v)
+               (setf (gethash ,k ,dict) ,v))
+           ,exp))
+       ,dict)))
