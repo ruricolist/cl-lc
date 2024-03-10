@@ -102,7 +102,7 @@ A list comprehension consists of an expression, whose results will be
 collected, followed by a list of filters and generators.
 
 Generators are expressions with a keyword as their second argument.
-     (list-of x (x :in xs))
+     (list-of x (for x in xs))
      ≡ (mapcar #'identity xs)
 
 The binding of a generator can use destructuring:
@@ -112,40 +112,27 @@ The binding of a generator can use destructuring:
 Generators can be made parallel simply by enclosing them in a list.
 
     (list-of (list x y)
-      ((x :in xs) (y :in ys)))
+      ((for x in xs) (for y in ys)))
     ≡ (list-of (list x y)
-       ((x y) :in (mapcar #'list xs ys)))
+       (for (x y) in (mapcar #'list xs ys)))
 
 Filters are ordinary expressions that filter the results of each
 generator:
 
-     (list-of x (x :in (iota 10)) (evenp x))
+     (list-of x (for x in (iota 10)) (evenp x))
      => (2, 4, 6, 8, 10)
 
-Acceptable generators are:
+You may use `if', `when', and `unless' as syntactic sugar:
 
-1. Lists, with `:in'.
+     (list-of x (for x in (iota 10)) if (evenp x))
+     => (2 4 6 8 10)
 
-2. Vectors, with `:across'.
+     (list-of x (for x in (iota 10)) unless (evenp x))
+     => (1 3 5 7 9)
 
-3. Sequences of any kind, with `:over'.
-
-4. `loop's arithmetic subclauses, e.g.
-
-     (i :from 0 :to 10 :by 2)
-
-5. `:on' to bind the successive tails of a list.
-
-6. Direct bindings with `:=' and, optionally, `:then'.
-
-     (x := y :then z)
-
-7. Multiple values, again with `:='.
-
-     (x y z := (values 1 2 3))
-
-8. `:in-hashtable', to bind the items of a hash table.
-     ((key value) :in-hashtable table)")
+Generators can be any `for' clause understood by Iterate, including
+user-defined ones. We also provide an additional driver, `(for .. over
+...)', which allow iterating over any sequence.")
 
 (defcomp count-of count
   "Like a list comprehension but, instead of collecting the results,
