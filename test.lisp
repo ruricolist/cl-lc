@@ -9,6 +9,16 @@
 (defun run-tests ()
   (run! 'cl-lc))
 
+(def-test paper-example ()
+  (let ((i50000 (iota 50000)))
+    (is (equal
+         (loop repeat 1
+               nconc (loop for x in i50000
+                           nconc
+                           (loop for y in '(a b c)
+                                 if (> 0 x) collect x)))
+         (list-of x (for x in i50000) (for y in '(a b c)) (> 0 x))))))
+
 (def-test identity-lc ()
   (let ((xs (iota 10)))
     (is (equal
