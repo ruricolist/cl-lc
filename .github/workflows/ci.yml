@@ -1,0 +1,32 @@
+name: CI
+
+on: [push, pull_request]
+
+env:
+  GITHUB_WORKSPACE: $HOME/common-lisp/cl-lc
+
+jobs:
+  test:
+    name: ${{ matrix.lisp }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        lisp: [sbcl-bin, ccl-bin/1.12.1]
+        os: [ubuntu-latest, macOS-latest]
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Install Roswell
+        env:
+          LISP: ${{ matrix.lisp }}
+        run: |
+          curl -L https://raw.githubusercontent.com/roswell/roswell/master/scripts/install-for-ci.sh | sh
+      - name: Install ci-utils
+        run: ros install ci-utils
+      - name: Run tests
+        run: |
+          PATH="~/.roswell/bin:$PATH"
+          run-fiveam -l cl-lc/test 'cl-lc.test::run-tests'
+      - name: Run compile-bundle-op
+        run: |
+          ros run
