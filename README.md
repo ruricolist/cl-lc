@@ -1,10 +1,11 @@
-CL-LC provides list comprehensions (and other “comprehensions”). The
-implementation is adapted from from Mario Latendresse, “Simple and
-Efficient Compilation of List Comprehensions in Common Lisp.”
+CL-LC provides list comprehensions (and other “comprehensions”, like
+dictionary comprehensions) using the technique presented in Mario
+Latendresse, “[Simple and Efficient Compilation of List Comprehensions
+in Common Lisp][list-comp].”
 
-CL-LC comprehensions expand into [Iterate][] loops. One way to think
-of CL-LC is as an alternative front-end syntax for Iterate, without
-losing any of Iterate’s extensibility.
+CL-LC comprehensions expand into [Iterate][] rather than `loop`. One
+way to think of CL-LC is as an alternative front-end syntax for
+Iterate preserving Iterate’s extensibility.
 
 # Syntax
 
@@ -45,7 +46,6 @@ You may use `if`, `when`, and `unless` as syntactic sugar:
 Generators can be any `for` clause understood by Iterate, including
 user-defined ones. We also provide an additional driver, `(for .. over
 ...)`, which allow iterating over any sequence.
-
 
 # Other macros
 
@@ -98,3 +98,4 @@ Using `dict-of` construct an `equal` hash table from pairs of (multiple) values.
 ```
 
 [Iterate]: https://common-lisp.net/project/iterate/doc/index.html
+[list-comp]: https://www.iro.umontreal.ca/~latendre/publications/listCompFinal.pdf
