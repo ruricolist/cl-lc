@@ -14,7 +14,7 @@ collected into a list, followed by a list of filters and generators.
 
 Generators are expressions that start with `iterate:for`.
 
-     (lc:list-of x (for x in xs))
+     (list-of x (for x in xs))
      ≡ (mapcar #'identity xs)
 
 The binding of a generator can use destructuring:
