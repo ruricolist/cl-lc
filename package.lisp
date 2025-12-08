@@ -10,4 +10,4 @@
            #:count-of
            #:over
            #:do-for
-           #:dict-of))
+           #:dict-of #:vect-of))

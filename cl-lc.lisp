@@ -192,3 +192,14 @@ values."
                (setf (gethash ,k ,dict) ,v))
            ,exp))
        ,dict)))
+
+(defmacro vect-of (exp &rest exps)
+  "Like a list comprehension, but collect the results into a new
+adjustable vector instead."
+  (with-unique-names (vect)
+    `(let ((,vect (vect)))
+       (do-for ,exps
+         ;; Use multiple-value-call instead of multiple-value-bind to
+         ;; ensure two values are returned.
+         (vector-push-extend ,exp ,vect))
+       ,vect)))
