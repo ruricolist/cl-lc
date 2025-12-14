@@ -72,7 +72,7 @@
 
 (defmacro-driver (for var over seq)
   (with-gensyms (gseq idx)
-    (let ((for (if generate 'generate for)))
+    (let ((for (if generate 'generate 'for)))
       `(progn
          (with ,gseq = ,seq)
          (with ,idx = 0)
