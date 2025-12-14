@@ -76,3 +76,8 @@
                   (dict-of (values k v)
                            (for (k . v) in '((a . 1) (b . 2)))))
                  :test #'equal)))
+
+(def-test test-vect-of ()
+  (let ((vect (vect-of x (for x below 6))))
+    (is (typep vect 'vector))
+    (is (equalp #(0 1 2 3 4 5) vect))))
